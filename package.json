@@ -1,0 +1,26 @@
+{
+  "name": "bouquet",
+  "version": "1.0.0",
+  "description": "built a micro nodejs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alinacornea/bouquet.ai.git"
+  },
+  "author": "Alina Cornea",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alinacornea/bouquet.ai/issues"
+  },
+  "homepage": "https://github.com/alinacornea/bouquet.ai#readme",
+  "dependencies": {
+    "express": "^4.15.5",
+    "nodemon": "^1.12.1"
+  }
+  "scripts": {
+    "start": "nodemon app.js"
+  }
+}
