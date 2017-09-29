@@ -1,31 +1,31 @@
-const { send } = require('micro')
-var Highcharts = require('highcharts');
+var express = require('express');
+var app = express();
+var path = require('path');
+var https = require('https');
 
-const url = require('url');
-const request = require('request');
+/* routing app.METHOD(PATH, HANDLER);
+* app-instance of express;
+* METHOD is the HTTP request method, in lowercase.
+* PATH is a path on the server.
+* HANDLER is the function executed when the route is matched.
+*/
 
-module.exports = function (req, res) {
-  const { pathname } = url.parse(request.url)
-  console.log(pathname)
-  send(res, 200, 'Hello World! 👋')
-}
+app.get('/',function(req,res){
+  res.sendFile(path.join(__dirname +'/index.html'));
+  //__dirname : It will resolve to your project folder.
+});
 
-// /* routing app.METHOD(PATH, HANDLER);
-// * app-instance of express;
-// * METHOD is the HTTP request method, in lowercase.
-// * PATH is a path on the server.
-// * HANDLER is the function executed when the route is matched.
-// */
-// app.get('/',function(req,res){
-//   res.sendFile(path.join(__dirname +'/index.html'));
-//   //__dirname : It will resolve to your project folder.
+
+// app.get('/buildChart.js',function(req,res){
+// 	res.sendFile(path.join(__dirname + '/buildChart.js'));
 // });
-//
-//
-// /*
-// * start the server
-// *
-// */
-// app.listen(3000, function () {
-//   console.log('Example app listening on port 3000!')
-// });
+
+// app.use(express.static(__dirname + '/public'));
+/*
+* start the server
+*
+*/
+
+app.listen(3000, function () {
+  console.log('Example app listening on port 3000!')
+});

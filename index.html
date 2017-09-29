@@ -7,137 +7,113 @@
 
 <div id="container" style="min-width: 300px; height: 400px; margin: 0 auto"></div>
 <script>
-  var url = 'https://data.marincounty.org/resource/mw3d-ud6d.json?month_and_year';
-  // example1: get data json using ajax
-  // $.ajax({
-  //         url: url,
-  //         type: 'GET',
-  //         dataType: "json",
-  //         success: displayAll
-  //     });
-  //
-  // function displayAll(data){
-  //   $(jQuery.parseJSON(JSON.stringify(data))).each(function() {
-  //       var amount = this.amount;
-  //       var contract_number = this.contract_number;
-  //       var department = this.department;
-  //       var month_and_year = this.month_and_year;
-  //       var unique_id = this.unique_id;
-  //       var vendor_name = this.vendor_name;
-  //
-  //       $('#stage').html('<p> Amount: ' + amount + '</p>');
-  //       $('#stage').append('<p> Contract_number : ' + contract_number+ '</p>');
-  //       $('#stage').append('<p> Department: ' + department + '</p>');
-  //       $('#stage').append('<p> Month: ' + month_and_year + '</p>');
-  //       $('#stage').append('<p> Id: ' + unique_id + '</p>');
-  //       $('#stage').append('<p> Vendor: ' + vendor_name + '</p>');
-  //     });
-  // };
+  var url = 'https://data.marincounty.org/resource/mw3d-ud6d.json';
+  let chartInfo = {};
 
+  $.ajax({
+          url: url,
+          type: 'GET',
+          dataType: "json",
+          success: function (json) {
+      /* get json data */
+      $(jQuery.parseJSON(JSON.stringify(json))).each(function() {
 
-  //example2: get data json using getJSON
-  $(document).ready(function() {
+      let data = {};
+      let start = new Date("06-01-2016");
+      let end = new Date("06-01-2017");
 
-            var array_departments = [];
-             $("#driver").click(function(event){
-                $.getJSON(url, function(jd) {
-                  $(jQuery.parseJSON(JSON.stringify(jd))).each(function() {
-                    array_departments.push(this.department);
-                    document.getElementById("stage").innerHTML = array_departments;
-                     $('#stage').html('<p> Amount: ' + this.amount + '</p>');
-                     $('#stage').append('<p> Contract_number : ' + this.contract_number+ '</p>');
-                     $('#stage').append('<p> Department: ' + this.department + '</p>');
-                     $('#stage').append('<p> Month: ' + this.month_and_year + '</p>');
-                     $('#stage').append('<p> Id: ' + this.unique_id + '</p>');
-                     $('#stage').append('<p> Vendor: ' + this.vendor_name + '</p>');
-                    //  document.getElementById("stage").innerHTML = array;
-                   });
-                });
-             });
-          });
+      while(start < end){
+          var newDate = start.setMonth(start.getMonth() + 1);
+          start = new Date(newDate);
+          data[start.toJSON().slice(0,7)] = {};
+      }
+      /* iterate through all json objects and get the necesarry data */
+      for (let i = 0; i < json.length; i++) {
+        /* substract the date from the json value "2016-07-01T00:00:00.000" format
+        * and store it in monthYear variable;
+        */
+        let monthYear = json[i].month_and_year.substring(0, 7);
+        /*
+        *
+        *
+        */
+        if (json[i].department in data[monthYear]) {
+          data[monthYear][json[i].department] += parseInt(json[i].amount);
+        }
+        else {
+          data[monthYear][json[i].department] = parseInt(json[i].amount);
+        }
+      }
 
-          Highcharts.chart('container', {
-            chart: {
-                type: 'column'
-            },
-            title: {
-                text: 'Bouquet.ai Exercise'
-            },
-            subtitle: {
-                text: 'Contract amounts in Marin Country by department'
-            },
-            xAxis: {
-                type: 'category',
-                labels: {
-                    rotation: -45,
-                    style: {
-                        fontSize: '11px',
-                        fontFamily: 'Verdana, sans-serif'
-                    }
-                }
-            },
-            yAxis: {
-                min: 0,
-                max: 60,
-                title: {
-                    text: 'Total amount ($)'
-                },
-                labels: {
-                  formatter: function() {
-                      return this.value + 'k';
-                  }
-              },
-            },
-            legend: {
-                enabled: false
-            },
-            tooltip: {
-                pointFormat: 'Total sum amount by department: <b>{point.y:.1f}k</b>'
-            },
-            series: [{
-                name: 'Department',
-                data: [
-                    ['DEPARTMENT OF FINANCE', 23.7],
-                    ['HEALTH AND HUMAN SERVICES', 16.1],
-                    ['COUNTY ADMINISTRATORS OFFICE,', 14.2],
-                    ['PUBLIC WORKS', 14.0],
-                    ['MARIN COUNTY FIRE', 12.5],
-                    ['MARIN COUNTY PARKS', 12.1],
-                    ['DEPARTMENT OF PUBLIC WORKS', 11.8],
-                    ['MARIN COUNTY FREE LIBRARY', 11.7],
-                    ['ELECTIONS', 11.1],
-                    ['PROBATION', 11.1],
-                    ['INFORMATION SYSTEMS TECHNOLOGY', 10.5],
-                    ['HUMAN RESOURCES', 10.4],
-                    ['SHERIFF CORONERS OFFICE', 10.0],
-                    ['NON DEPARTMENTAL', 9.3],
-                    ['COMMUNITY DEVELOPMENT AGENCY', 9.3],
-                    ['CULTURAL SERVICES', 9.0],
-                ],
-                dataLabels: {
-                    enabled: true,
-                    rotation: -90,
-                    color: '#FFFFFF',
-                    align: 'right',
-                    format: '{point.y:.1f}', // one decimal
-                    y: 10, // 10 pixels down from the top
-                    style: {
-                        fontSize: '8px',
-                        fontFamily: 'Verdana, sans-serif'
-                    }
-                }
-            }]
-        });
+      for (let elem in data) {
+        let new_value = [];
+        for (let key in data[elem]) {
+          new_value.push([ key, data[elem][key] ]);
+          }
+        chartInfo[elem] = new_value;
+        }
+      });
+    }
+  });
 
+  // http://api.highcharts.com/highcharts/xAxis.labels.format
+  function loadBarChart(){
+    let picker = document.getElementById('picker').value;
+    Highcharts.chart('container', {
+      chart: {
+        type: 'column',
+        backgroundColor: '#FFFAFA',
+      },
+        title: {
+        text: 'Bouquet.ai Exercise'
+      },
+        subtitle: {
+        text: 'Contract amounts in Marin Country by department'
+      },
+        xAxis: {
+        type: 'category',
+        labels: {
+        rotation: -45,
+        style: {
+        fontSize: '11px',
+        fontFamily: 'Verdana, sans-serif'
+          }
+        }
+      },
+        yAxis: {
+        min: 0,
+        title: {
+          text: 'Total amount ($)'
+        },
+      },
+        legend: {
+        enabled: false
+      },
+        tooltip: {
+        pointFormat: 'Total sum amount by department: <b>{point.y:,.0f}k</b>'
+      },
+        series: [{
+        name: 'Total amount',
+        data: chartInfo[picker],
+        dataLabels: {
+          enabled: true,
+          rotation: -90,
+          color: '#FFFFFF',
+          align: 'right',
+          format: '{point.y:,.0f}', // one decimal
+          y: 10, // 10 pixels down from the top
+          style: {
+          fontSize: '8px',
+          fontFamily: 'Verdana, sans-serif',
+          }
+        }
+      }]
+    });
+  }
 </script>
 
 </head>
 <body>
-  <p> Click on the button to load result.html file:</p>
-  <div id = "stage" style = "background-color:#cc0;">
-     STAGE
-  </div>
-  <input type = "button" id = "driver" value = "Load Data" />
-
+  <input type="month" id="picker" value='2016-07' min='2016-07' max='2017-06' onchange='loadBarChart()'>
 </body>
 </html>

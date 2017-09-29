@@ -4,7 +4,6 @@
   "description": "built a micro nodejs",
   "main": "index.js",
   "scripts": {
-    "start": "micro",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
