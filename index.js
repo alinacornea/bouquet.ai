@@ -1,7 +1,6 @@
 var express = require('express');
 var app = express();
 var path = require('path');
-var https = require('https');
 
 /* routing app.METHOD(PATH, HANDLER);
 * app-instance of express;
@@ -12,19 +11,7 @@ var https = require('https');
 
 app.get('/',function(req,res){
   res.sendFile(path.join(__dirname +'/index.html'));
-  //__dirname : It will resolve to your project folder.
 });
-
-
-// app.get('/buildChart.js',function(req,res){
-// 	res.sendFile(path.join(__dirname + '/buildChart.js'));
-// });
-
-// app.use(express.static(__dirname + '/public'));
-/*
-* start the server
-*
-*/
 
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!')

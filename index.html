@@ -3,54 +3,50 @@
 <head>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/modules/exporting.js"></script>
-
-<div id="container" style="min-width: 300px; height: 400px; margin: 0 auto"></div>
 <script>
-  var url = 'https://data.marincounty.org/resource/mw3d-ud6d.json';
-  let chartInfo = {};
+  var apiJson = 'https://data.marincounty.org/resource/mw3d-ud6d.json';
+  let barChartInfo = new Object(); //iniatilize an object where will store th einfo to load barChart
 
   $.ajax({
-          url: url,
+          url: apiJson,
           type: 'GET',
           dataType: "json",
-          success: function (json) {
+          success: function (jsonData) {
       /* get json data */
-      $(jQuery.parseJSON(JSON.stringify(json))).each(function() {
-
-      let data = {};
+      $(jQuery.parseJSON(JSON.stringify(jsonData))).each(function() {
+      let substractData =  new Object();
       let start = new Date("06-01-2016");
       let end = new Date("06-01-2017");
 
       while(start < end){
           var newDate = start.setMonth(start.getMonth() + 1);
           start = new Date(newDate);
-          data[start.toJSON().slice(0,7)] = {};
+          substractData[start.toJSON().slice(0,7)] = {};
       }
-      /* iterate through all json objects and get the necesarry data */
-      for (let i = 0; i < json.length; i++) {
-        /* substract the date from the json value "2016-07-01T00:00:00.000" format
-        * and store it in monthYear variable;
+      /* iterate through all jsonData objects and get the necesarry substractData */
+      for (let i = 0; i < jsonData.length; i++) {
+        /* substract the date from the jsonData value "2016-07-01T00:00:00.000"
+        * format in "2016-07" format and store it in monthYear variable;
         */
-        let monthYear = json[i].month_and_year.substring(0, 7);
+        let monthYear = jsonData[i].month_and_year.slice(0, 7);
         /*
-        *
-        *
+        * sum all the amount of each department for the each new
         */
-        if (json[i].department in data[monthYear]) {
-          data[monthYear][json[i].department] += parseInt(json[i].amount);
-        }
-        else {
-          data[monthYear][json[i].department] = parseInt(json[i].amount);
+        if (jsonData[i].department in substractData[monthYear]) {
+          substractData[monthYear][jsonData[i].department] += parseInt(jsonData[i].amount);
+        }else {
+          substractData[monthYear][jsonData[i].department] = parseInt(jsonData[i].amount);
         }
       }
-
-      for (let elem in data) {
-        let new_value = [];
-        for (let key in data[elem]) {
-          new_value.push([ key, data[elem][key] ]);
+      /* create a object (date["departments" : "amounts"]) out of the "substractData" object
+      * in order to load the bar chart for each datePicker
+      */
+      for (let datePicker in substractData) {
+        let array = [];
+        for (let departments in substractData[datePicker]) {
+          array.push([ departments, substractData[datePicker][departments]]);
           }
-        chartInfo[elem] = new_value;
+        barChartInfo[datePicker] = array;
         }
       });
     }
@@ -58,7 +54,7 @@
 
   // http://api.highcharts.com/highcharts/xAxis.labels.format
   function loadBarChart(){
-    let picker = document.getElementById('picker').value;
+    let datePicker = document.getElementById('picker').value;
     Highcharts.chart('container', {
       chart: {
         type: 'column',
@@ -90,11 +86,11 @@
         enabled: false
       },
         tooltip: {
-        pointFormat: 'Total sum amount by department: <b>{point.y:,.0f}k</b>'
+        pointFormat: 'Total sum amount by department: <b>{point.y:.0f}k</b>'
       },
         series: [{
         name: 'Total amount',
-        data: chartInfo[picker],
+        data: barChartInfo[datePicker], //get date
         dataLabels: {
           enabled: true,
           rotation: -90,
@@ -113,7 +109,8 @@
 </script>
 
 </head>
-<body>
-  <input type="month" id="picker" value='2016-07' min='2016-07' max='2017-06' onchange='loadBarChart()'>
+<body onload='loadBarChart()'>
+  <div id="container" style="min-width: 300px; height: 400px; margin: 0 auto"></div>
+  <input type="month" id= "picker" value='2016-07' min='2016-07' max='2017-06' onchange='loadBarChart()'>
 </body>
 </html>
