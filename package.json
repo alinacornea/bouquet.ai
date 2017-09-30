@@ -4,6 +4,7 @@
   "description": "built a micro nodejs",
   "main": "index.js",
   "scripts": {
+    "start":"node index.js"
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,7 +18,7 @@
   },
   "homepage": "https://github.com/alinacornea/bouquet.ai#readme",
   "dependencies": {
-    "express": "^4.15.5",
+    "express": "^4.16.1",
     "nodemon": "^1.12.1"
   }
 }

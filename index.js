@@ -8,11 +8,12 @@ var path = require('path');
 * PATH is a path on the server.
 * HANDLER is the function executed when the route is matched.
 */
+app.set('port', (process.env.PORT || 3000));
 
 app.get('/',function(req,res){
   res.sendFile(path.join(__dirname +'/index.html'));
 });
 
-app.listen(3000, function () {
+app.listen(app.get('port'), function () {
   console.log('Example app listening on port 3000!')
 });
